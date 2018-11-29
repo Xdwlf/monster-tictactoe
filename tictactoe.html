@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="icon" href="favicon.png">
+	<title>The Monster Tic Tac Toe</title>
+<link href="https://fonts.googleapis.com/css?family=Amatic+SC|Noto+Sans+TC|Sedgwick+Ave" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="tictactoe.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+
+</head>
+<body>
+
+	<div id="head">
+	<h1>Monster Tic Tac Toe</h1>
+	</div>
+
+	<div id="strip">
+		<button class="displaystrip stripbutton button" id="mode"><i class="fas fa-user"> vs. <i class="fas fa-robot"></i></i></button>
+		<span class="displaystrip" id="display"></span>
+		<button class="displaystrip stripbutton" id="reset">New Game</button>
+	</div>
+
+<div id="scoreboard">
+	<div>
+	<span id="spacing1"></span>
+	<i class="fas fa-times"></i> : <span id="countx">0</span>
+	<span class="spacing"></span>
+	<i class="fas fa-handshake"></i> : <span id="counttie">0</span> 
+	<span class="spacing"></span>
+	<i class="fas fa-dot-circle"></i> : <span id="counto">0</span> 
+	<button id=countbutton><i class="fas fa-undo"></i></button>
+	</div></div>
+
+<div class="container"></div>
+
+<div id="game">
+	<div class="square bbot bright"></div>
+	<div class="square bbot bright bleft"></div>
+	<div class="square bbot bleft"></div>
+	<div class="square bbot btop bright"></div>
+	<div class="square bbot btop bright bleft"></div>
+	<div class="square bbot btop bleft"></div>
+	<div class="square btop bright"></div>
+	<div class="square btop bright bleft"></div>
+	<div class="square btop bleft"></div>
+</div>
+
+
+<div class="container">
+</div>
+
+
+<script type="text/javascript" src="tictactoe.js"></script>
+</body>
+</html>

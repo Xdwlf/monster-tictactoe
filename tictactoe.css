@@ -1,0 +1,197 @@
+/*beach
+colors: R: 150 G: 206 B: 179
+		R: 255 G: 238 B: 174
+		R: 254 G: 111 B: 105
+		R: 255 G: 203 B: 91
+		R: 136 G: 217 B: 176
+*/
+/*	background-color:rgb(150,206,179);
+	background-color:rgb(255,238,174);
+	background-color:rgb(254,111,105);
+	background-color:rgb(255,203,91);
+	background-color:rgb(136,217,176);*/
+
+
+body{
+	width:100%;
+	margin:0;
+	background-image: url("zombies.jpg");
+	background-position:0px 0px;
+	/*background-color:#354500;*/
+	background-size:cover;
+	overflow:hidden;
+	font-family: 'Noto Sans TC', sans-serif;
+}
+#head{
+font-family: 'Amatic SC', cursive;
+	text-align:center;
+	background-color: rgba(0,0,20,.2);
+	background-size:cover;
+	background-repeat:no-repeat;
+	height:100px;
+	width:100%;
+	color:white;
+	font-size:15px;
+}
+
+h1{
+	margin:0 auto;
+	padding-top:10px;
+	font-size: 60px;
+}
+
+h1:hover{
+	animation: shiver;
+	color:red;
+	transition:0.5;
+	animation-duration:1s;
+}
+
+#strip{
+	height:40px;
+	background-color: rgba(0,0,0,0.5);
+	text-align:center;
+	color:white;
+
+}
+	
+.stripbutton{
+	margin:10px auto;
+	width:110px;
+	height:100%;
+	outline:none;
+	padding-bottom:20px;
+	background:none;
+	border:none;
+	font-size:18px;
+	color:white;
+}
+
+.stripbutton:hover{
+	
+	color: red;
+	transition:all 0.3s;
+}
+
+.stripbutton:active{
+color:rgba(255,255,255,0.8);
+	transition:all 0.3s;
+/* 	transform: translateY(2px);*/
+}
+
+#display{
+	display: inline-block;
+	width:30%;
+	font-size:20px;
+	color:white;
+}
+
+#mode{
+
+}
+#spacing1{
+	width:20px;
+	display:inline-block;
+}
+#scoreboard{
+	margin:0 auto;
+	text-align:center;
+	background-color:rgba(255, 152, 10,0.7);
+}
+
+#countbutton{
+	width:20px;
+	background:none;
+	outline:none;
+	border:none;
+}
+#countbutton:hover{
+	font-size:15px;
+	transition:0.3s;
+}
+
+.spacing{
+	display:inline-block;
+	width:5%;
+}
+
+#game{
+	width:400px;
+	margin:10px auto;
+}
+
+
+.square{
+	height:90px;
+	width:110px;
+	float:left;
+	padding: 10px;
+	text-align:center;
+}
+
+.bbot{
+	border-bottom: 1px solid white;
+}
+
+.btop{
+	border-top: 1px solid white;
+}
+.bright{
+	border-right: 1px solid white;
+}
+.bleft{
+	border-left: 1px solid white;
+}
+
+.xmarked{
+	background-image: url("x.png");
+	background-size:contain;
+	background-repeat:none;
+	
+}
+
+.omarked{
+	background-image: url("o.png");
+	background-size:contain;
+}
+
+@keyframes shiver {
+	10%{
+		transform: translateX(-4px);
+	}
+	20%{
+		font-size:70px;
+		transform: translateX(4px);
+	}
+	30%{
+		font-size:75px;
+		letter-spacing:1.2px;
+		transform: translateX(-4px);
+	}
+	40%{
+		font-size:70px;
+		transform: translateX(4px);
+	}
+	50%{
+		transform: translateX(-3px);
+	}
+	60%{
+		transform: translateX(3px);
+	}
+	70%{
+		transform: translateX(-1px);
+	}
+	75%{
+		transform: translateX(1px);
+	}
+	80%{
+		transform: translateX(-1px);
+	}
+	85%{
+		transform: translateX(1px);
+	}
+	90%{
+		transform: translateX(-1px);
+	}
+
+}
