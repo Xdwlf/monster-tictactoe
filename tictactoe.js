@@ -1,37 +1,31 @@
 var squares = document.querySelectorAll(".square");
 var resetButton= document.querySelector("#reset");
 var modeButton= document.querySelector("#mode")
-var winningSpaces=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 var display= document.querySelector("#display");
 var counterX= document.querySelector("#countx");
 var counterTie= document.querySelector("#counttie");
 var counterO= document.querySelector("#counto");
 var refreshCountButton= document.querySelector("#countbutton");
-var turn = "x"; //X starts
-var winningIndex; //identifies position to be played that will end the game
-var gameMode="ai";
-var gameStatus= true;
 var winningCombination; //identifies where winning combination is located
-var xWinNum=0;
-var oWinNum=0;
-var tieNum=0;
+var game = {
+	winningIndex : null, //tracks position to be played that will end the game
+	mode : "ai",
+	status : true,
+	turn: "x" //X starts
+}
+var winCounter = {
+	x : 0,
+	o : 0,
+	tie : 0
+}
 
 for(i=0; i<squares.length; i++){
 	squares[i].addEventListener("click",function(){
 		if(checkSquare(this)){ //checks if anything in square
-			if(gameStatus===true){ //checks if game is ongoing
-			markSquare(this);};
+			if(game.status===true) playTurn(this);//checks if game is ongoing
 			checkWin();
-			if(checkTie()){
-				gameStatus=false;
-				tieNum++;
-				updateCount();
-				display.textContent ="It's a Tie!";
-			}
-			if(gameMode==="ai"&&gameStatus===true){
-				aiPlay();
-			}
-
+			if(checkTie()) gameTie();
+			if(game.mode==="ai"&&game.status===true) aiPlay();
 		}
 	});
 }
@@ -41,297 +35,225 @@ resetButton.addEventListener("click",function(){
 });
 
 modeButton.addEventListener("click",function(){
-	if(gameMode==="ai"){
-		gameMode="human";
+	if(game.mode==="ai"){
+		game.mode="human";
 		modeButton.innerHTML="<i class='fas fa-user'></i> vs. <i class='far fa-user'></i>";
 	}
-	else if(gameMode==="human"){
-		gameMode="ai";
+	else if(game.mode==="human"){
+		game.mode="ai";
 		modeButton.innerHTML="<i class='fas fa-user'></i> vs. <i class='fas fa-robot'></i>";
 	}
 	reset();
-
 });
 
 refreshCountButton.addEventListener("click",function(){
 	restartCount();
 });
-//alternates marking of squares
 
-function markSquare(square){
-	if(turn==="x"){
-		markX(square);
-		if(gameMode==="human"){
+
+//BASIC GAME LOGIC
+
+//alternates marking of squares
+function playTurn(square){
+	if(game.turn==="x"){
+		mark(square, "x");
+		if(game.mode==="human"){
 			display.textContent="O's Turn";
 		}
 	}
-	else if(gameMode==="human"){
-		if(turn==="o"){
-		markO(square);
+	else if(game.mode==="human"){
+		if(game.turn==="o"){
+		mark(square, "o");
 		display.textContent="X's Turn";
 	};
 	}
 }
 
-function markX(square){
-	square.classList.add("xmarked");
-	turn= "o";
-}
-
-function markO(square){
-	square.classList.add("omarked");
-	turn= "x";
-}
 //checks if existing element in square
 //returns false if square already taken
 //returns true if square is empty
-function checkSquare(square){
-	if(square.classList.contains("xmarked") || 
-		square.classList.contains("omarked")){
-		return false;
-	}
-	else{
-		return true;
-	}
-}
+//if second parameter is entered, returns true or false for if contains corresponding class
 
-//resets entire page
-function reset(){
-	for(i=0; i<squares.length; i++){
-		squares[i].classList.remove("xmarked");
-		squares[i].classList.remove("omarked");
-	};
-	gameStatus=true;
-	turn ="x";
-	display.textContent="";
-};
-
-//checks if someone has won the game
-//012,345,678
-//036,147,258
-//048,246
-function checkWin(){
-	if(checkXWinTotal()===true&&gameStatus===true){
-		xWinNum++;
-		console.log("in checkXWintotal");
-		if(gameMode=== "human"){
-			display.textContent ="X Wins!";
-		}
-		else{
-			display.textContent ="You Win!";
-		}
-		gameStatus= false;
-	}else if(checkOWinTotal()===true&&gameStatus===true){
-		oWinNum++;
-		console.log("in checkOWintotal");
-		if(gameMode=== "human"){
-			display.textContent ="O Wins!";
-		}
-		else{
-			display.textContent ="You Lose!";
-		}
-		gameStatus= false;
-	};
-	updateCount();
-}
-//checks if X wins anywhere on page
-function checkXWinTotal(){
-	var win=false;
-
-	if(checkXWin(0,1,2)||checkXWin(3,4,5)||
-		checkXWin(6,7,8)||checkXWin(0,3,6)||
-		checkXWin(1,4,7)||checkXWin(2,5,8)||
-		checkXWin(0,4,8)||checkXWin(2,4,6) ===true){
-		return win=true;
-	};
-	return win;
-}
-
-//checks if O wins anywhere on page
-function checkOWinTotal(){
-	var win=false;
-
-	if(checkOWin(0,1,2)||checkOWin(3,4,5)||
-		checkOWin(6,7,8)||checkOWin(0,3,6)||
-		checkOWin(1,4,7)||checkOWin(2,5,8)||
-		checkOWin(0,4,8)||checkOWin(2,4,6) ===true){
-		return win=true;
-	};
-
-	return win;
-
-}
-function checkXWin(a,b,c){
-	if(checkX(squares[a])&&checkX(squares[b])&&checkX(squares[c])){
-		winningCombination=[a,b,c];
-		return true;
-	}
-	else{
-		return false;
+function checkSquare(square, mark){
+	if(mark && mark==="o"){ //checks if square is marked O
+		if(square.classList.contains("omarked")) return true;
+		else return false;
+	} else if(mark && mark ==="x"){ //checks if square is marked x
+		if(square.classList.contains("xmarked")) return true;
+		else return false;
+	} else{ //checks if square is marked at all
+		if(square.classList.contains("xmarked") || square.classList.contains("omarked")) return false;
+		else return true;
 	}
 }
 
-function checkOWin(a,b,c){
-	if(checkO(squares[a])&&checkO(squares[b])&&checkO(squares[c])){
-		winningCombination=[a,b,c];
-		return true;
-	}
-	else{
-		return false;
+function mark(square, mark){
+	if(mark ==="x"){
+		square.classList.add("xmarked");
+		game.turn= "o";
+	} else{
+		square.classList.add("omarked");
+		game.turn= "x";
 	}
 }
 
-function checkX(square){
-	if(square.classList.contains("xmarked")){
- 		return true;
- 	}
-	else{
-	return false;
-}};
 
-function checkO(square){
-	if(square.classList.contains("omarked")){
- 		return true;
- 	}
-	else{
-	return false;
-}};
-
-//create AI for AI Mode
-//create array of unchosen squares
+//COMPUTER PLAYER LOGIC
 
 function aiPlay(){
 	var marked= false;
 	var index;
 	display.textContent="A.I. is Playing";
 	if(almostWinTotal()==-2||almostWinTotal()==2){
-		gameStatus=false;
-		setTimeout(function(){
-			markO(squares[checkThird(winningIndex)]);
-			gameStatus=true;
-			display.textContent="Your Turn";
-			turn="x";
-			checkWin();
-			if(checkTie()){
-				gameStatus=false;
-				tieNum++;
-				updateCount();
-				display.textContent ="It's a Tie!";
-			};
-		},600);
+		index = checkThird(game.winningIndex);
 		marked=true;
-	}
-	else{
-		while(!marked){//randomly chooses component and checks if marked
+	} else{
+		while(!marked){//randomly chooses square and checks if marked
 			index = Math.floor(Math.random()*9);
 			marked = checkSquare(squares[index]);
 		}
-		gameStatus=false;
-		setTimeout(function(){
-			markO(squares[index]); 
-			display.textContent="Your Turn";
-			gameStatus=true;
-			checkWin();
-			turn="x";
-			if(checkTie()){
-				gameStatus=false;
-				tieNum++;
-				updateCount();
-				display.textContent ="It's a Tie!";
-			};
-		},600);
-	}};
+	}
+	game.status=false; //prevents player from playing while ai is playing
+	setTimeout(function(){ // ai plays on slight delay
+		mark(squares[index], "o");
+		display.textContent="Your Turn";
+		game.status=true;
+		checkWin();
+		game.turn="x";
+		if(checkTie()) gameTie();
+	},600)
+};
+
+
+
 //checks if 3 in a row is about to happen
 function almostWinTotal(){
 	//create value for scoring if 2 Os and 1 space
 	var score=0;
-	//Os = -1
-	//Xs = 1
-	//blanks = 0
+	var winningPositions = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7],
+		[2,5,8], [0,4,8], [2,4,6]];
+	let i = 0;
 	//if 2, then almost X win
-
-	if(almostOWin(0,1,2)  || almostOWin(3,4,5)||
-		almostOWin(6,7,8) || almostOWin(0,3,6)||
-		almostOWin(1,4,7) || almostOWin(2,5,8)||
-		almostOWin(0,4,8) || almostOWin(2,4,6) == true){
-		score=-2;
+	while(i<winningPositions.length){
+		if(almostLineWin(winningPositions[i])=== -2){
+			score = almostLineWin(winningPositions[i])
+			break;
+		} else if(almostLineWin(winningPositions[i])=== 2){
+			score = almostLineWin(winningPositions[i]);
+		}
+		i++;
 	}
-	else if(almostXWin(0,1,2)  || almostXWin(3,4,5)||
-		almostXWin(6,7,8) || almostXWin(0,3,6)||
-		almostXWin(1,4,7) || almostXWin(2,5,8)||
-		almostXWin(0,4,8) || almostXWin(2,4,6) == true){
-		score=2;
-	};
-	return score; //returns -2 if O wins and 2 if X wins
+	return score;
 }
-
 
 //checks if X 3 in a row is about to happen
-function almostXWin(index1,index2,index3){
+function almostLineWin(arr){ //input is array with 3 position
 	var score=0;
-	score = valueSquare(index1) + valueSquare(index2) +
-		valueSquare(index3);
-	if(score==2){
-		winningIndex=[index1,index2,index3];
-		return true;
-	}
-	return 0;
+	score = valueSquare(arr[0]) + valueSquare(arr[1]) + valueSquare(arr[2]);
+	if(score==2 || score == -2) game.winningIndex=[arr[0],arr[1],arr[2]];
+	return score;
 }
-
-//checks if Y 3 in a row is about to happen
-function almostOWin(index1,index2,index3){
-	var score=0;
-	score = valueSquare(index1) + valueSquare(index2) +
-		valueSquare(index3);
-	if(score==-2){
-		winningIndex=[index1,index2,index3];
-		return true;
-	}
-	return false;
-}
-
 
 //function that checks value of square with index
+//if x , returns 1
+//if y, returns -1
 function valueSquare(index){
 	var squareValue=0;
-	if(squares[index].classList.contains("xmarked")){
- 		squareValue=1;
- 	}
-	else if(squares[index].classList.contains("omarked")){
-		squareValue=-1;
-	}
+	if(squares[index].classList.contains("xmarked")) squareValue=1;
+	else if(squares[index].classList.contains("omarked")) squareValue=-1;
 	return squareValue;
 }
 
 function checkThird(arrayOfIndex){
 	var thirdLocation;
 	arrayOfIndex.forEach(function(element){
-		if(checkSquare(squares[element])){
-			thirdLocation=element;
-		}
+		if(checkSquare(squares[element])) thirdLocation=element;
 	})
 	return thirdLocation;
 }
 
+
+//CHECKS IF THE GAME IS TIED
+
 function checkTie(){//returns true if no empty squares
 	var hasEmptySquare= false;
 	for(i=0;i<squares.length;i++){
-		if(checkSquare(squares[i])){
-			hasEmptySquare = true;
-		}
+		if(checkSquare(squares[i])) hasEmptySquare = true;
 	}
 	return !hasEmptySquare;
 };
 
+function gameTie(){
+	game.status=false;
+	winCounter.tie++;
+	updateCount();
+	display.textContent ="It's a Tie!";
+}
+
+
+//CHECKS IF ANYONE HAS WON
+
+//Checks if someone has won the game and handles logic for how to proceed
+function checkWin(){
+	if(checkBoardWin("x")===true&&game.status===true){
+		winCounter.x++;
+		if(game.mode=== "human") display.textContent ="X Wins!";
+		else display.textContent ="You Win!";
+		game.status= false;
+	}else if(checkBoardWin("o")===true&&game.status===true){
+		winCounter.o++;
+		if(game.mode=== "human") display.textContent ="O Wins!"
+		else display.textContent ="You Lose!";
+		game.status= false;
+	};
+	updateCount();
+}
+
+//checks if O or X wins anywhere on board
+function checkBoardWin(mark){
+	if(checkLineWin([0,1,2], mark)||checkLineWin([3,4,5], mark)||
+		checkLineWin([6,7,8], mark)||checkLineWin([0,3,6], mark)||
+		checkLineWin([1,4,7], mark)||checkLineWin([2,5,8], mark)||
+		checkLineWin([0,4,8], mark)||checkLineWin([2,4,6], mark) ===true){
+		return true;
+	};
+	return false;
+}
+
+//input is an array of square positions and a mark
+//checks if the class corresponding to the mark exists in all 3 locations
+function checkLineWin(arr, mark){ // mark input must be "o" or "x"
+	var [a,b,c] = arr;
+	if( checkSquare(squares[a], mark) && checkSquare(squares[b], mark) && checkSquare(squares[c], mark)){
+		winningCombination=[a,b,c];
+		return true;
+	} else return false;
+} //returns true or false
+
+//RESETS BOARD
+
+function reset(){
+	for(i=0; i<squares.length; i++){
+		squares[i].classList.remove("xmarked");
+		squares[i].classList.remove("omarked");
+	};
+	game.status=true;
+	game.turn ="x";
+	display.textContent="";
+};
+
+
+//UPDATES WIN COUNTER
+
 function updateCount(){
-	counterX.textContent=xWinNum;
-	counterTie.textContent=tieNum;
-	counterO.textContent=oWinNum;
+	counterX.textContent= winCounter.x;
+	counterTie.textContent= winCounter.tie;
+	counterO.textContent= winCounter.o;
 }
 
 function restartCount(){
-	xWinNum=0;
-	tieNum=0;
-	oWinNum=0;
+	winCounter.x = 0;
+	winCounter.o = 0;
+	winCounter.tie = 0;
 	updateCount();
 }
